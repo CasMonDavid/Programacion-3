@@ -317,9 +317,6 @@ public class Ventana extends JFrame{
 				if (buscar.equals(tablero[i][o])) {
 					selecPosicion[0] = i;
 					selecPosicion[1] = o;
-					System.out.println("Posicion x: "+i);
-					System.out.println("Posicion y: "+o);
-					System.out.println("Numero: "+buscar);
 				}
 			}
 		}
