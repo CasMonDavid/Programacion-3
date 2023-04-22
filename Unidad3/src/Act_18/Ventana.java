@@ -19,10 +19,11 @@ import javax.swing.JPanel;
 public class Ventana extends JFrame{
 	
 	private String numerosJuego[] = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"," "};
+	private String numerosResueltos[] = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"," "};
 	private boolean finDelJuego=false;
 	
-	List<String> lista = Arrays.asList(numerosJuego);
-	List<String> listaResuelta = Arrays.asList(numerosJuego);
+	List<String> lista = Arrays.asList(numerosJuego);	
+	List<String> listaResuelta = Arrays.asList(numerosResueltos);
 	
 	JButton btn1,btn2,btn3,btn4,btn5,btn6,btn7,btn8,btn9,btn10,btn11,btn12,btn13,btn14,btn15,btn16,btnReiniciar;
 	
@@ -32,7 +33,7 @@ public class Ventana extends JFrame{
 		this.setLocationRelativeTo(null);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		this.setTitle("Rompecabezas numerico");
+		this.setTitle("Rompecabezas numerico - Menor a mayor");
 		
 		JPanel panelPrincipal = new JPanel();
 		panelPrincipal.setLayout(new BorderLayout());
