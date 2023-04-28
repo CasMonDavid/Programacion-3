@@ -13,78 +13,38 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
-public class Ventana extends JFrame {
+public class Ventana extends JFrame implements Runnable {
 	
 	private int posi_x;
 	private int posi_y;
+	public JPanel principal, panelJuego, panelAbajo;
+	public JButton btnReiniciar;
 
 	public Ventana() {
 		this.setSize(500,500);
 		this.setVisible(true);
 		this.setTitle("Laberinto");
 		this.setLocationRelativeTo(null);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
-		JPanel principal = new JPanel();
+		principal = new JPanel();
 		principal.setBackground(Color.white);
 		principal.setLayout(new BorderLayout());
 		this.add(principal);
 		
-		JPanel panelJuego = new JPanel();
+		panelJuego = new JPanel();
 		panelJuego.setBackground(Color.gray);
 		principal.add(panelJuego,BorderLayout.CENTER);
 		
-		JPanel panelAbajo = new JPanel();
+		panelAbajo = new JPanel();
 		panelAbajo.setBackground(Color.yellow);
 		principal.add(panelAbajo,BorderLayout.SOUTH);
 		
-		JButton btn = new JButton("Reiniciar");
-		panelAbajo.add(btn);
+		btnReiniciar = new JButton("Reiniciar");
+		panelAbajo.add(btnReiniciar);
 		
-		panelJuego.add(new MyGraphics());
-		
-		panelJuego.addKeyListener(new KeyListener() {
-			
-			@Override
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void keyPressed(KeyEvent e) {
-				System.out.println(e.getKeyCode());
-				
-				if (e.getKeyCode()==87) {
-					posi_y-=1;
-				}
-				
-				if (e.getKeyCode()==83) {
-					posi_y+=1;
-				}
-				
-				if (e.getKeyCode()==68) {
-					posi_x+=1;
-				}
-				
-				if (e.getKeyCode()==65) {
-					posi_x-=1;
-				}
-				
-				panelJuego.repaint();
-				panelJuego.revalidate();
-			}
-		});
-		
-		//HACE QUE EL BOTON NO LE QUITE EL FOCO A LA VENTANA Y SE LA DEVUELVE
-		btn.setFocusable(false);
-		panelJuego.setFocusable(true);
-		panelJuego.requestFocus();
+		Thread hilo = new Thread(this);
+		hilo.start();
 		
 		this.repaint();
 		this.revalidate();
@@ -141,6 +101,61 @@ public class Ventana extends JFrame {
 			}
 		
 		return resultado;
+		}
+	}
+
+
+	@Override
+	public void run() {
+		
+		panelJuego.add(new MyGraphics());
+		
+		while(true) {
+			panelJuego.addKeyListener(new KeyListener() {
+			
+				@Override
+				public void keyTyped(KeyEvent e) {
+					// TODO Auto-generated method stub
+				
+				}
+			
+				@Override
+				public void keyReleased(KeyEvent e) {
+					// TODO Auto-generated method stub
+				
+				}
+			
+				@Override
+				public void keyPressed(KeyEvent e) {
+				
+				
+					if (e.getKeyCode()==87) {
+						posi_y-=1;
+					}
+				
+					if (e.getKeyCode()==83) {
+						posi_y+=1;
+					}
+				
+					if (e.getKeyCode()==68) {
+						posi_x+=1;
+					}
+				
+					if (e.getKeyCode()==65) {
+						posi_x-=1;
+					}
+					
+					panelJuego.repaint();
+					panelJuego.revalidate();
+				}
+			});
+			btnReiniciar.setFocusable(false);
+			panelJuego.setFocusable(true);
+			panelJuego.requestFocus();
+			
+			//HACE QUE EL BOTON NO LE QUITE EL FOCO A LA VENTANA Y SE LA DEVUELVE
+			this.repaint();
+			this.revalidate();
 		}
 	}
 }
