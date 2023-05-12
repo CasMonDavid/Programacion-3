@@ -12,6 +12,10 @@ import javax.swing.JOptionPane;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,6 +40,7 @@ public class Ventana_Formulario extends JFrame {
 	private JPasswordField ingre_contra;
 	private JPasswordField ingre_recontra;
 	private JTextField ingre_correo;
+	private File archivo;
 
 	/**
 	 * Launch the application.
@@ -66,6 +71,13 @@ public class Ventana_Formulario extends JFrame {
 		contentPane.setForeground(new Color(0, 0, 0));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
+		archivo = new File("users_Formulario.txt");
+		try {
+			crearDocumentoTxt();
+		} catch (IOException e) {
+			System.err.println("No se pudo crear el documento txt "+e);
+		}
+		
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
@@ -215,11 +227,51 @@ public class Ventana_Formulario extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				
 				if (verificarLlenado() && chbox_terminos.isSelected()) {
-					System.out.println("PRIMER PASO BIEN");
 					if (!verifNombre()) {
-						System.out.println("SEGUNDO PASO BIEN");
 						if (!verifApellido()) {
-							System.out.println("TERCER PASO BIEN");
+							if (!verifEmpresaInstitu()) {
+								if (!verifCargo()) {
+									if (!verifNombreUsuario()) {
+										if (!verifContrasena()) {
+											if (!verifReContrasena()) {
+												if (!verifCorreo()) {
+													
+													if (esIgualContrasenas()) {
+														try {
+															ingresarDatos(cbox_ambitos);
+															JOptionPane.showMessageDialog(null,"Sus datos se registraron exitosamente","Success",JOptionPane.INFORMATION_MESSAGE);
+														} catch (IOException e1) {
+															System.err.println("No se guardaron los datos de forma correcta");
+														}
+														
+													}else {
+														JOptionPane.showMessageDialog(null,"Las contraseñas no coinciden","Error al registrar",JOptionPane.ERROR_MESSAGE);
+													}
+													
+												}else {
+													JOptionPane.showMessageDialog(null,"Se detectaron caracteres no permitidos en la seccion: ["+lbl_correo.getText()+"]","Error al registrar",JOptionPane.ERROR_MESSAGE);
+													throw new CaracterProhibidoExeption(lbl_correo.getText());
+												}
+											}else {
+												JOptionPane.showMessageDialog(null,"Se detectaron caracteres no permitidos en la seccion: ["+lbl_contra_1.getText()+"]","Error al registrar",JOptionPane.ERROR_MESSAGE);
+												throw new CaracterProhibidoExeption(lbl_contra_1.getText());
+											}
+										}else {
+											JOptionPane.showMessageDialog(null,"Se detectaron caracteres no permitidos en la seccion: ["+lbl_contra.getText()+"]","Error al registrar",JOptionPane.ERROR_MESSAGE);
+											throw new CaracterProhibidoExeption(lbl_contra.getText());
+										}
+									}else {
+										JOptionPane.showMessageDialog(null,"Se detectaron caracteres no permitidos en la seccion: ["+lbl_nombreusuario.getText()+"]","Error al registrar",JOptionPane.ERROR_MESSAGE);
+										throw new CaracterProhibidoExeption(lbl_nombreusuario.getText());
+									}
+								}else {
+									JOptionPane.showMessageDialog(null,"Se detectaron caracteres no permitidos en la seccion: ["+lbl_cargo.getText()+"]","Error al registrar",JOptionPane.ERROR_MESSAGE);
+									throw new CaracterProhibidoExeption(lbl_cargo.getText());
+								}
+							}else {
+								JOptionPane.showMessageDialog(null,"Se detectaron caracteres no permitidos en la seccion: ["+lbl_empreInst.getText()+"]","Error al registrar",JOptionPane.ERROR_MESSAGE);
+								throw new CaracterProhibidoExeption(lbl_empreInst.getText());
+							}
 						}else {
 							JOptionPane.showMessageDialog(null,"Se detectaron caracteres no permitidos en la seccion: ["+lbl_apellidos.getText()+"]","Error al registrar",JOptionPane.ERROR_MESSAGE);
 							throw new CaracterProhibidoExeption(lbl_apellidos.getText());
@@ -236,6 +288,8 @@ public class Ventana_Formulario extends JFrame {
 			}
 		});
 		
+		repaint();
+		revalidate();
 	}
 	
 	public boolean verificarLlenado() {
@@ -283,6 +337,153 @@ public class Ventana_Formulario extends JFrame {
 		}
 		
 		return resultado;
+	}
+	
+	public boolean verifEmpresaInstitu() {
+		boolean resultado = false;
+		Set<Character> caracteresProhibidos = new HashSet<>(Arrays.asList('|','°','¬','!','"','#','$','%','&','/','(',')','=','?','¡','¿','+','*','~','´','¨',
+																		'{','}','[',']','^','`','<','>',',',';','.',':','-','_'));
+		for (int i=0;i<ingre_empreIns.getText().length();i++) {
+			char caracterActual = ingre_empreIns.getText().charAt(i);
+			if (caracteresProhibidos.contains(caracterActual)) {
+				resultado = true;
+			}
+		}
+		
+		return resultado;
+	}
+	
+	public boolean verifCargo() {
+		boolean resultado = false;
+		Set<Character> caracteresProhibidos = new HashSet<>(Arrays.asList('0','1','2','3','4','5','6','7','8','9','|','°','¬','!','"','#','$','%','&','/',
+																		'(',')','=','?','¡','¿','+','*','~','´','¨','{','}','[',']','^','`','<','>',',',';',
+																		'.',':','-','_'));
+		for (int i=0;i<ingre_cargo.getText().length();i++) {
+			char caracterActual = ingre_cargo.getText().charAt(i);
+			if (caracteresProhibidos.contains(caracterActual)) {
+				resultado = true;
+			}
+		}
+		
+		return resultado;
+	}
+	
+	public boolean verifNombreUsuario() {
+		boolean resultado = false;
+		Set<Character> caracteresProhibidos = new HashSet<>(Arrays.asList('|','°','¬','!','"','#','$','%','&','/','(',')','=','?','¡','¿','+','*','~','´','¨',
+																		'{','}','[',']','^','`','<','>',',',';','.',':','-','_'));
+		for (int i=0;i<ingre_nomusua.getText().length();i++) {
+			char caracterActual = ingre_nomusua.getText().charAt(i);
+			if (caracteresProhibidos.contains(caracterActual)) {
+				resultado = true;
+			}
+		}
+		
+		return resultado;
+	}
+	
+	public boolean verifContrasena() {
+		boolean resultado = false;
+		Set<Character> caracteresProhibidos = new HashSet<>(Arrays.asList(' '));
+		String contrasena = new String(ingre_contra.getPassword());
+		
+		for (int i=0;i<contrasena.length();i++) {
+			char caracterActual = contrasena.charAt(i);
+			if (caracteresProhibidos.contains(caracterActual)) {
+				resultado = true;
+			}
+		}
+		
+		return resultado;
+	}
+	
+	public boolean verifReContrasena() {
+		boolean resultado = false;
+		Set<Character> caracteresProhibidos = new HashSet<>(Arrays.asList(' '));
+		String contrasena = new String(ingre_recontra.getPassword());
+		
+		for (int i=0;i<contrasena.length();i++) {
+			char caracterActual = contrasena.charAt(i);
+			if (caracteresProhibidos.contains(caracterActual)) {
+				resultado = true;
+			}
+		}
+		
+		return resultado;
+	}
+	
+	public boolean verifCorreo() {
+		boolean resultado = false;
+		Set<Character> caracteresProhibidos = new HashSet<>(Arrays.asList(' '));
+		
+		for (int i=0;i<ingre_correo.getText().length();i++) {
+			char caracterActual = ingre_correo.getText().charAt(i);
+			if (caracteresProhibidos.contains(caracterActual) || 
+				ingre_correo.getText().contains("fakemail.com") || 
+				ingre_correo.getText().contains("zzz.com") ||
+				ingre_correo.getText().contains("zxo.us") ||
+				ingre_correo.getText().contains("000000pay.com")) {
+				resultado = true;
+				System.out.println("ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
+			}
+		}
+		
+		return resultado;
+	}
+	
+	public boolean esIgualContrasenas() {
+		boolean resultado = false;
+		String contra = new String(ingre_contra.getPassword());
+		String contraRE = new String(ingre_recontra.getPassword());
+		
+		if (contra.equals(contraRE)) {
+			resultado = true;
+		}
+		
+		return resultado;
+	}
+	
+	public void crearDocumentoTxt() throws IOException {//CREA EL DOCUMENTO DE TEXTO SI NO EXISTE Y AGREGA UN USUARIO PREDIFINIDO
+		if (!archivo.exists()) {
+			
+			try {
+				archivo.createNewFile();
+			}catch(Exception e) {}
+		}
+	}
+	
+	public void ingresarDatos(JComboBox<String> combo) throws IOException {
+		FileWriter escritor;
+		PrintWriter linea;
+		
+		if (archivo.exists()) {
+			escritor = new FileWriter(archivo,true);
+			linea = new PrintWriter(escritor);
+			linea.println(ingre_nombre.getText()+"-"+ingre_apellidos.getText()+"-"+ingre_empreIns.getText()+"-"+combo.getSelectedItem().toString()+"-"+ingre_cargo.getText()+"-"+ingre_nomusua.getText()+"-"+new String(ingre_contra.getPassword())+"-"+ingre_correo.getText());
+			linea.close();
+			escritor.close();
+		}
+		
+	}
+	
+	public class CaracterProhibidoExeption extends RuntimeException {
+
+		public CaracterProhibidoExeption() {
+			super("Se detectaron caracteres no permitidos");
+		}
+		
+		public CaracterProhibidoExeption(String cadena) {
+			super("Se detectaron caracteres no permitidos en "+cadena);
+		}
+		
+	}
+	
+	public class VacioExeption extends RuntimeException {
+
+		public VacioExeption() {
+			super("Faltan elementos por llenar");
+		}
+		
 	}
 	
 }
